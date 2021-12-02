@@ -254,23 +254,21 @@ public class Model {
                 "       float distance = length(u_LightPos[i] - v_Position);                             \n"+
 
                 "       float diffuse = max(dot(v_Normal, lightVector),0.0), toonDiffuse;                \n"+ // diffuse
-                "       if(diffuse == 0.0) toonDiffuse = 0.0;                                            \n"+
-                "       else if(diffuse < 0.01) toonDiffuse = smoothstep(0.0, 0.01, diffuse)*0.33;       \n"+
-                "       else if(diffuse < 0.5) toonDiffuse = 0.33;                                       \n"+
-                "       else if(diffuse < 0.51) toonDiffuse = 0.33+smoothstep(0.5, 0.51, diffuse)*0.33;  \n"+
-                "       else if(diffuse < 0.75) toonDiffuse = 0.66;                                      \n"+
-                "       else if(diffuse < 0.76) toonDiffuse = 0.66+smoothstep(0.75, 0.76, diffuse)*0.33; \n"+
+                "       if(diffuse < 0.4) toonDiffuse = 0.0;                                            \n"+
+                "       else if(diffuse < 0.41) toonDiffuse = smoothstep(0.5, 0.51, diffuse)*0.5;  \n"+
+                "       else if(diffuse < 0.75) toonDiffuse = 0.5;                                      \n"+
+                "       else if(diffuse < 0.76) toonDiffuse = 0.5+smoothstep(0.75, 0.76, diffuse)*0.5; \n"+
                 "       else toonDiffuse = 1.0;                                                          \n"+
 
                 //"       float specular = pow(max(dot(viewVector, reflectVector),0.0), 64.0);           \n"+ // specular
-                "       float specular = pow(max(dot(v_Normal, halfVector),0.0), 128.0);                 \n"+
+                "       float specular = pow(max(dot(v_Normal, halfVector),0.0), 64.0);                 \n"+
                 "       float toonSpecular = smoothstep(0.05, 0.1, specular);                            \n"+
 
                 "       float toonRim = pow(diffuse, 0.1) * (1.0 - dot(viewVector, v_Normal));           \n"+ // rim
-                "       toonRim = smoothstep(0.70, 0.72, toonRim);                                       \n"+
+                "       toonRim = smoothstep(0.90, 0.92, toonRim);                                       \n"+
 
                 //"       float attenuation = 1.0/(1.0+0.09*distance+0.032*distance*distance);           \n"+
-                "       Sum += diffuse + specular + toonRim;                                          \n"+ // multiply attenuation if want to
+                "       Sum += toonDiffuse + toonSpecular + toonRim;                                          \n"+ // multiply attenuation if want to
                 "   }                                                                 \n"+
                 "   gl_FragColor = vec4(1.0, 0.5, 0.5, 1.0) * Sum * texture2D(u_Texture, v_TextureMap);    \n"+
                 "}                                                                       \n";

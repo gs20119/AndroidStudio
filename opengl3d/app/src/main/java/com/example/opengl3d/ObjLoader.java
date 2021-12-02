@@ -13,7 +13,7 @@ public final class ObjLoader {
     public float[] normalData;
     public float[] textureMapData;
     public float[] vertexData;
-    private float scale = 1.0f;
+    private float scale = 0.01f;
 
     public ObjLoader(Context context, String file) {
 

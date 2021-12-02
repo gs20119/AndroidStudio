@@ -36,7 +36,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     private float[] lightModelMatrix = new float[16];
     private float[][] lightPos = new float[pointNum][];
     static float[][] lightPositions = {
-            { -1.0f, 2.0f, 1.5f },
+            { 0.0f, 3.0f, -5.0f },
             { 0.0f, 2.0f, -6.0f }
     };
     static float[][] cubePositions = {
@@ -49,11 +49,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     };
     static float[][] cubeAngles = {
             { 0.0f, 1.0f, 0.0f, 0.0f },
+            { 0.0f, 0.0f, 1.0f, 0.0f },
+            { 0.0f, 1.0f, 0.0f, 1.0f },
             { 0.0f, 1.0f, 0.0f, 0.0f },
-            { 0.0f, 1.0f, 0.0f, 0.0f },
-            { 0.0f, 1.0f, 0.0f, 0.0f },
-            { 0.0f, 1.0f, 0.0f, 0.0f },
-            { 0.0f, 1.0f, 0.0f, 0.0f },
+            { 0.0f, 0.0f, 0.0f, 1.0f },
+            { 0.0f, 0.0f, 1.0f, 1.0f },
             { 0.0f, 1.0f, 0.0f, 0.0f },
             { 0.0f, 1.0f, 0.0f, 0.0f },
     };
@@ -79,7 +79,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     public MyGLRenderer(final Context context) // 이곳에서 버퍼 초기화 후 모델 정보 인수인계
     {
         mActivityContext = context;
-        ObjLoader mCube = new ObjLoader(context, "bl.obj");
+        ObjLoader mCube = new ObjLoader(context, "dice.obj");
         faceNum = mCube.numFaces;
         System.out.println(faceNum);
 
@@ -109,7 +109,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         mainProgramHandle = createAndLinkProgram(vertexShaderHandle, fragmentShaderHandle, new String[] {"a_Position", "a_Normal", "a_TextureMap"});
         // 셰이더 뭉쳐서 mainProgram 생성하고 컴파일 (일반 도형 렌더링용 프로그램)
 
-        textureDataHandle = loadTexture(mActivityContext, R.drawable.wall);
+        textureDataHandle = loadTexture(mActivityContext, R.drawable.reddice);
     }
 
 
@@ -138,8 +138,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         long time = SystemClock.uptimeMillis() % 10000L;
         float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
 
-        float eyeX = 0.0f;
-        float eyeY = 3.0f;
+        float eyeX = 1.0f;
+        float eyeY = 2.0f;
         float eyeZ = -3.0f; // 카메라 위치
 
         float lookX = 0.0f;
@@ -179,7 +179,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         for(int i=0; i<cubeNum; i++){
             Matrix.setIdentityM(modelMatrix, 0);
             Matrix.translateM(modelMatrix, 0, cubePositions[i][0], cubePositions[i][1], cubePositions[i][2]); // 평행이동
-            Matrix.rotateM(modelMatrix, 0, 90.0f, cubeAngles[i][1], cubeAngles[i][2], cubeAngles[i][3]); // 회전(크기와 방향)
+            Matrix.rotateM(modelMatrix, 0, angleInDegrees, cubeAngles[i][1], cubeAngles[i][2], cubeAngles[i][3]); // 회전(크기와 방향)
             GLES20.glUniform3f(viewHandle, eyeX, eyeY, eyeZ);
             drawCube();
         }
