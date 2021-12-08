@@ -265,12 +265,12 @@ public class Model {
                 "       float toonSpecular = smoothstep(0.05, 0.1, specular);                            \n"+
 
                 "       float toonRim = pow(diffuse, 0.1) * (1.0 - dot(viewVector, v_Normal));           \n"+ // rim
-                "       toonRim = smoothstep(0.90, 0.92, toonRim);                                       \n"+
+                "       toonRim = 0.1*smoothstep(0.95, 0.97, toonRim);                                       \n"+
 
                 //"       float attenuation = 1.0/(1.0+0.09*distance+0.032*distance*distance);           \n"+
                 "       Sum += toonDiffuse + toonSpecular + toonRim;                                          \n"+ // multiply attenuation if want to
                 "   }                                                                 \n"+
-                "   gl_FragColor = vec4(1.0, 0.5, 0.5, 1.0) * Sum * texture2D(u_Texture, v_TextureMap);    \n"+
+                "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * Sum * texture2D(u_Texture, v_TextureMap);    \n"+
                 "}                                                                       \n";
         return fragmentShader;
     }

@@ -15,8 +15,9 @@ public final class ObjLoader {
     public float[] vertexData;
     private float scale = 0.01f;
 
-    public ObjLoader(Context context, String file) {
+    public ObjLoader(Context context, String file, float Scale) {
 
+        scale = Scale;
         Vector<Float> vertices = new Vector<>();
         Vector<Float> normalData = new Vector<>();
         Vector<Float> textures = new Vector<>();

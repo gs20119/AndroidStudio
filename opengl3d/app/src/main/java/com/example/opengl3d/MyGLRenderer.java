@@ -2,6 +2,7 @@ package com.example.opengl3d;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -24,8 +25,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     private final int floatSize = 4;
     private final int vDimension = 3;
     private final int nDimension = 3;
-    private final int cubeNum = 6;
+    private final int cubeNum = 3;
     private final int pointNum = 2;
+    private final int texNum = 3;
     private final int faceNum;
 
     private float[] modelMatrix = new float[16];
@@ -35,27 +37,25 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
     private float[] lightModelMatrix = new float[16];
     private float[][] lightPos = new float[pointNum][];
+    static float lightClock = 0.0f;
     static float[][] lightPositions = {
-            { 0.0f, 3.0f, -5.0f },
+            { 0.0f, 2.5f, -4.0f },
             { 0.0f, 2.0f, -6.0f }
     };
     static float[][] cubePositions = {
-            { 0.0f, -0.0f, 0.0f },
-            { 1.2f, -0.0f, 0.0f },
-            { -1.2f, -0.0f, 0.0f },
-            { 0.0f, -0.0f, 1.2f },
-            { 1.2f, -0.0f, -1.2f },
-            { -1.2f, -0.0f, -1.2f },
+            { 0.0f, 1.0f, -1.0f },
+            { 0.87f, -0.5f, -1.0f },
+            { -0.87f, -0.5f, -1.0f },
     };
     static float[][] cubeAngles = {
-            { 0.0f, 1.0f, 0.0f, 0.0f },
-            { 0.0f, 0.0f, 1.0f, 0.0f },
-            { 0.0f, 1.0f, 0.0f, 1.0f },
-            { 0.0f, 1.0f, 0.0f, 0.0f },
-            { 0.0f, 0.0f, 0.0f, 1.0f },
-            { 0.0f, 0.0f, 1.0f, 1.0f },
-            { 0.0f, 1.0f, 0.0f, 0.0f },
-            { 0.0f, 1.0f, 0.0f, 0.0f },
+            { 1.0f, 1.0f, 0.0f },
+            { 1.0f, 0.0f, 1.0f },
+            { 0.0f, 1.0f, 1.0f },
+    };
+    static int[] resources = {
+            R.drawable.reddice,
+            R.drawable.bluedice,
+            R.drawable.greendice,
     };
 
     private final FloatBuffer cubeVertexBuffer;
@@ -67,19 +67,25 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     private int[] lightPositionHandle = new int[pointNum];
     private int vertexHandle;
     private int normalHandle;
-    private int textureDataHandle;
+    private int[] textureDataHandle = new int[texNum];
     private int textureShaderHandle;
     private int textureMapHandle;
-
     private int viewHandle; // attribute, uniform 변수 값들을 셰이더로 넘기는 핸들
 
     private int mainProgramHandle; // 셰이더 프로그램 담당 핸들
 
+    private Random random = new Random();
+    private long throwTime = 0;
+    private long lastTime = 0, time;
+    private float[] inAir = new float[cubeNum];
+    private float[] angleInDegrees = { 45.0f, 90.0f, 135.0f };
+    private boolean shakeDetected;
+    public void Shake(){ shakeDetected = true; }
 
     public MyGLRenderer(final Context context) // 이곳에서 버퍼 초기화 후 모델 정보 인수인계
     {
         mActivityContext = context;
-        ObjLoader mCube = new ObjLoader(context, "dice.obj");
+        ObjLoader mCube = new ObjLoader(context, "dice.obj", 0.01f);
         faceNum = mCube.numFaces;
         System.out.println(faceNum);
 
@@ -109,7 +115,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         mainProgramHandle = createAndLinkProgram(vertexShaderHandle, fragmentShaderHandle, new String[] {"a_Position", "a_Normal", "a_TextureMap"});
         // 셰이더 뭉쳐서 mainProgram 생성하고 컴파일 (일반 도형 렌더링용 프로그램)
 
-        textureDataHandle = loadTexture(mActivityContext, R.drawable.reddice);
+        for(int i=0; i<texNum; i++)
+            textureDataHandle[i] = loadTexture(mActivityContext, resources[i]);
     }
 
 
@@ -135,12 +142,28 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        long time = SystemClock.uptimeMillis() % 10000L;
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
+        time = SystemClock.uptimeMillis();
+        if(shakeDetected){
+            shakeDetected = false;
+            throwTime = time;
+            for(int i=0; i<cubeNum; i++){
+                inAir[i] = 2000.0f+2000.0f*random.nextFloat();
+                for(int j=0; j<vDimension; j++)
+                    cubeAngles[i][j] = random.nextFloat()*10.0f-5.0f;
+            }
+        }
+        for(int i=0; i<cubeNum; i++) if(time-throwTime<inAir[i]){
+            angleInDegrees[i] += (360.0f/1000.0f)*(time-lastTime);
+            while(angleInDegrees[i]>=360) angleInDegrees[i] -= 360.0f;
+            lightClock += 0.0002f*angleInDegrees[i];
+        }lastTime = time;
+        while(lightClock>=360) lightClock -= 360.0f;
+        lightPositions[0][0] = 4.5f * (float)Math.sin(lightClock);
+        lightPositions[0][1] = 4.5f * (float)Math.cos(lightClock);
 
-        float eyeX = 1.0f;
-        float eyeY = 2.0f;
-        float eyeZ = -3.0f; // 카메라 위치
+        float eyeX = 0.0f;
+        float eyeY = 0.0f;
+        float eyeZ = -5.0f; // 카메라 위치
 
         float lookX = 0.0f;
         float lookY = 0.0f;
@@ -151,7 +174,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         float upZ = 0.0f; // 위 방향
 
         Matrix.setLookAtM(viewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ); // view Matrix
-
 
         GLES20.glUseProgram(mainProgramHandle); // mainProgram 사용으로 넘어가기
 
@@ -165,7 +187,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         for(int i=0; i<pointNum; i++) lightPositionHandle[i] = GLES20.glGetUniformLocation(mainProgramHandle, "u_LightPos"+Integer.toString(i));
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureDataHandle);
         GLES20.glUniform1i(textureShaderHandle, 0);
 
         for(int i=0; i<pointNum; i++){
@@ -179,8 +200,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
         for(int i=0; i<cubeNum; i++){
             Matrix.setIdentityM(modelMatrix, 0);
             Matrix.translateM(modelMatrix, 0, cubePositions[i][0], cubePositions[i][1], cubePositions[i][2]); // 평행이동
-            Matrix.rotateM(modelMatrix, 0, angleInDegrees, cubeAngles[i][1], cubeAngles[i][2], cubeAngles[i][3]); // 회전(크기와 방향)
+            Matrix.rotateM(modelMatrix, 0, angleInDegrees[i], cubeAngles[i][0], cubeAngles[i][1], cubeAngles[i][2]); // 회전(크기와 방향)
             GLES20.glUniform3f(viewHandle, eyeX, eyeY, eyeZ);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureDataHandle[i]);
             drawCube();
         }
     }
