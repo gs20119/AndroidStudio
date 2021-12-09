@@ -29,6 +29,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     private final int pointNum = 2;
     private final int texNum = 3;
     private final int faceNum;
+    private final int backFaceNum;
 
     private float[] modelMatrix = new float[16];
     private float[] viewMatrix = new float[16];
@@ -38,9 +39,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     private float[] lightModelMatrix = new float[16];
     private float[][] lightPos = new float[pointNum][];
     static float lightClock = 0.0f;
+    static float[] backPosition = { 0.0f, -5.0f, 0.5f };
     static float[][] lightPositions = {
             { 0.0f, 2.5f, -4.0f },
-            { 0.0f, 2.0f, -6.0f }
+            { 0.0f, -2.5f, -4.0f }
     };
     static float[][] cubePositions = {
             { 0.0f, 1.0f, -1.0f },
@@ -62,17 +64,23 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     private final FloatBuffer cubeNormalBuffer;
     private final FloatBuffer cubeTextureMapBuffer; // 모델 정보를 저장하는 버퍼 (모델 종류별로 만들기)
 
+    private final FloatBuffer backVertexBuffer;
+    private final FloatBuffer backNormalBuffer;
+    private final FloatBuffer backTextureMapBuffer;
+
     private int MVPMatrixHandle;
     private int MVMatrixHandle;
     private int[] lightPositionHandle = new int[pointNum];
     private int vertexHandle;
     private int normalHandle;
     private int[] textureDataHandle = new int[texNum];
+    private int backTextureDataHandle;
     private int textureShaderHandle;
     private int textureMapHandle;
     private int viewHandle; // attribute, uniform 변수 값들을 셰이더로 넘기는 핸들
 
     private int mainProgramHandle; // 셰이더 프로그램 담당 핸들
+    private int backProgramHandle;
 
     private Random random = new Random();
     private long throwTime = 0;
@@ -85,9 +93,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
     public MyGLRenderer(final Context context) // 이곳에서 버퍼 초기화 후 모델 정보 인수인계
     {
         mActivityContext = context;
-        ObjLoader mCube = new ObjLoader(context, "dice.obj", 0.01f);
+        ObjLoader mCube = new ObjLoader(context, "Dice0.obj", 0.01f);
         faceNum = mCube.numFaces;
-        System.out.println(faceNum);
+        ObjLoader mBack = new ObjLoader(context, "backdrop_yellow.obj", 2.0f);
+        backFaceNum = mBack.numFaces;
 
         cubeVertexBuffer = ByteBuffer.allocateDirect(mCube.vertexData.length * floatSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
         cubeVertexBuffer.put(mCube.vertexData).position(0);
@@ -97,6 +106,16 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
         cubeTextureMapBuffer = ByteBuffer.allocateDirect(mCube.textureMapData.length * floatSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
         cubeTextureMapBuffer.put(mCube.textureMapData).position(0);
+
+        backVertexBuffer = ByteBuffer.allocateDirect(mBack.vertexData.length * floatSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        backVertexBuffer.put(mBack.vertexData).position(0);
+
+        backNormalBuffer = ByteBuffer.allocateDirect(mBack.normalData.length * floatSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        backNormalBuffer.put(mBack.normalData).position(0);
+
+        backTextureMapBuffer = ByteBuffer.allocateDirect(mBack.textureMapData.length * floatSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        backTextureMapBuffer.put(mBack.textureMapData).position(0);
+
     }
 
 
@@ -109,14 +128,18 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
         final String vertexShader = Model.getVertexShader();
         final String fragmentShader = Model.getFragmentShader(); // 셰이더 코드
+        final String backFragmentShader = Model.getBackFragmentShader();
 
         final int vertexShaderHandle = compileShader(GLES20.GL_VERTEX_SHADER, vertexShader);
         final int fragmentShaderHandle = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShader); // 핸들에게 셰이더 컴파일 맡김
+        final int backFragmentShaderHandle = compileShader(GLES20.GL_FRAGMENT_SHADER, backFragmentShader);
         mainProgramHandle = createAndLinkProgram(vertexShaderHandle, fragmentShaderHandle, new String[] {"a_Position", "a_Normal", "a_TextureMap"});
+        backProgramHandle = createAndLinkProgram(vertexShaderHandle, backFragmentShaderHandle, new String[]{"a_Position", "a_Normal", "a_TextureMap"});
         // 셰이더 뭉쳐서 mainProgram 생성하고 컴파일 (일반 도형 렌더링용 프로그램)
 
         for(int i=0; i<texNum; i++)
             textureDataHandle[i] = loadTexture(mActivityContext, resources[i]);
+        backTextureDataHandle = loadTexture(mActivityContext, R.drawable.yellow);
     }
 
 
@@ -175,6 +198,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
         Matrix.setLookAtM(viewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ); // view Matrix
 
+
         GLES20.glUseProgram(mainProgramHandle); // mainProgram 사용으로 넘어가기
 
         MVPMatrixHandle = GLES20.glGetUniformLocation(mainProgramHandle, "u_MVPMatrix"); // 셰이더의 변수랑 연동할 핸들 생성
@@ -205,6 +229,26 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureDataHandle[i]);
             drawCube();
         }
+
+
+        GLES20.glUseProgram(backProgramHandle);
+
+        MVPMatrixHandle = GLES20.glGetUniformLocation(backProgramHandle, "u_MVPMatrix"); // 셰이더의 변수랑 연동할 핸들 생성
+        MVMatrixHandle = GLES20.glGetUniformLocation(backProgramHandle, "u_MVMatrix"); // 핸들을 통해 변수에 값 넘겨줌
+        viewHandle = GLES20.glGetUniformLocation(backProgramHandle, "u_ViewPos");
+        textureShaderHandle = GLES20.glGetUniformLocation(backProgramHandle, "u_Texture");
+        vertexHandle = GLES20.glGetAttribLocation(backProgramHandle, "a_Position");
+        normalHandle = GLES20.glGetAttribLocation(backProgramHandle, "a_Normal");
+        textureMapHandle = GLES20.glGetAttribLocation(backProgramHandle, "a_TextureMap");
+        for(int i=0; i<pointNum; i++) lightPositionHandle[i] = GLES20.glGetUniformLocation(backProgramHandle, "u_LightPos"+Integer.toString(i));
+
+        Matrix.setIdentityM(modelMatrix, 0);
+        Matrix.translateM(modelMatrix, 0, backPosition[0], backPosition[1], backPosition[2]);
+        Matrix.rotateM(modelMatrix, 0, 90.0f, 0.0f, 1.0f, 0.0f);
+        GLES20.glUniform3f(viewHandle, eyeX, eyeY, eyeZ);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, backTextureDataHandle);
+        drawBackground();
+
     }
 
 
@@ -231,6 +275,31 @@ public class MyGLRenderer implements GLSurfaceView.Renderer
 
         for(int i=0; i<pointNum; i++) GLES20.glUniform3f(lightPositionHandle[i], lightPos[i][0], lightPos[i][1], lightPos[i][2]);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, faceNum); // 36개의 삼각형 그리기
+    }
+
+    private void drawBackground()
+    {
+        // attribute 변수에 값 넘겨줄때.. (버퍼사용)
+        backVertexBuffer.position(0); // 버퍼는 읽을때마다 0으로 만들어주기
+        GLES20.glVertexAttribPointer(vertexHandle, vDimension, GLES20.GL_FLOAT, false, 0, backVertexBuffer); // ~핸들을 통해, ~버퍼에서 ~개씩 읽어와라
+        GLES20.glEnableVertexAttribArray(vertexHandle); // 핸들이 버퍼에서 정보를 읽어오는걸 허용함
+
+        backNormalBuffer.position(0);
+        GLES20.glVertexAttribPointer(normalHandle, nDimension, GLES20.GL_FLOAT, false, 0, backNormalBuffer);
+        GLES20.glEnableVertexAttribArray(normalHandle); // vertex, color, normal 에서 같은작업 진행
+
+        backTextureMapBuffer.position(0);
+        GLES20.glVertexAttribPointer(textureMapHandle, 2, GLES20.GL_FLOAT, false, 0, backTextureMapBuffer);
+        GLES20.glEnableVertexAttribArray(textureMapHandle);
+
+        // uniform 변수에 값 넘겨줄때.. (직접넣기)
+        Matrix.multiplyMM(MVPMatrix, 0, viewMatrix, 0, modelMatrix, 0); // MV Matrix
+        GLES20.glUniformMatrix4fv(MVMatrixHandle, 1, false, MVPMatrix, 0); // 셰이더에 넘겨주기
+        Matrix.multiplyMM(MVPMatrix, 0, projMatrix, 0, MVPMatrix, 0); // MVP Matrix
+        GLES20.glUniformMatrix4fv(MVPMatrixHandle, 1, false, MVPMatrix, 0); // 셰이더에 넘겨주기
+
+        for(int i=0; i<pointNum; i++) GLES20.glUniform3f(lightPositionHandle[i], lightPos[i][0], lightPos[i][1], lightPos[i][2]);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, backFaceNum); // 36개의 삼각형 그리기
     }
 
 

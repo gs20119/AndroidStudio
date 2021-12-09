@@ -1,204 +1,6 @@
 package com.example.opengl3d;
 
 public class Model {
-    static final float[] cubeVertexData = { // XYZ CCW
-            // Front face
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, -1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, -1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-
-            // Right face
-            1.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f,
-            1.0f, 1.0f, -1.0f,
-            1.0f, -1.0f, 1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, 1.0f, -1.0f,
-
-            // Back face
-            1.0f, 1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            -1.0f, 1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, 1.0f, -1.0f,
-
-            // Left face
-            -1.0f, 1.0f, -1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-
-            // Top face
-            -1.0f, 1.0f, -1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, -1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, -1.0f,
-
-            // Bottom face
-            1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, 1.0f,
-            -1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, 1.0f,
-            -1.0f, -1.0f, 1.0f,
-            -1.0f, -1.0f, -1.0f,
-    };
-    static final float[] cubeColorData = { // RGBA
-            // Front face (red)
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-
-            // Right face (green)
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-
-            // Back face (blue)
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-
-            // Left face (yellow)
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-
-            // Top face (cyan)
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-
-            // Bottom face (magenta)
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f,
-            0.4f, 0.4f, 1.0f, 1.0f
-    };
-
-    static final float[] cubeNormalData = {
-            // Front face
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-
-            // Right face
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-
-            // Back face
-            0.0f, 0.0f, -1.0f,
-            0.0f, 0.0f, -1.0f,
-            0.0f, 0.0f, -1.0f,
-            0.0f, 0.0f, -1.0f,
-            0.0f, 0.0f, -1.0f,
-            0.0f, 0.0f, -1.0f,
-
-            // Left face
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-
-            // Top face
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-
-            // Bottom face
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f
-    };
-
-    static final float[] cubeTextureMapData = {
-            // Front face
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-                    1.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 1.0f,
-                    1.0f, 0.0f,
-
-                    // Right face
-                    0.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 1.0f,
-                    1.0f, 0.0f,
-
-                    // Back face
-                    0.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 1.0f,
-                    1.0f, 0.0f,
-
-                    // Left face
-                    0.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 1.0f,
-                    1.0f, 0.0f,
-
-                    // Top face
-                    0.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 1.0f,
-                    1.0f, 0.0f,
-
-                    // Bottom face
-                    0.0f, 0.0f,
-                    0.0f, 1.0f,
-                    1.0f, 0.0f,
-                    0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f
-    };
 
     protected static String getVertexShader()
     {
@@ -251,9 +53,10 @@ public class Model {
                 "       vec3 reflectVector = reflect(-lightVector, v_Normal);                            \n"+
                 "       vec3 viewVector = normalize(u_ViewPos - v_Position);                             \n"+
                 "       vec3 halfVector = normalize(lightVector + viewVector);                           \n"+
+                "       vec3 normalVector = normalize(v_Normal);                                         \n"+
                 "       float distance = length(u_LightPos[i] - v_Position);                             \n"+
 
-                "       float diffuse = max(dot(v_Normal, lightVector),0.0), toonDiffuse;                \n"+ // diffuse
+                "       float diffuse = dot(normalVector, lightVector), toonDiffuse;                   \n"+ // diffuse
                 "       if(diffuse < 0.4) toonDiffuse = 0.0;                                            \n"+
                 "       else if(diffuse < 0.41) toonDiffuse = smoothstep(0.5, 0.51, diffuse)*0.5;  \n"+
                 "       else if(diffuse < 0.75) toonDiffuse = 0.5;                                      \n"+
@@ -261,11 +64,11 @@ public class Model {
                 "       else toonDiffuse = 1.0;                                                          \n"+
 
                 //"       float specular = pow(max(dot(viewVector, reflectVector),0.0), 64.0);           \n"+ // specular
-                "       float specular = pow(max(dot(v_Normal, halfVector),0.0), 64.0);                 \n"+
-                "       float toonSpecular = smoothstep(0.05, 0.1, specular);                            \n"+
+                "       float specular = pow(max(dot(normalVector, halfVector),0.0), 64.0);              \n"+
+                "       float toonSpecular = smoothstep(0.1, 0.15, specular);                            \n"+
 
-                "       float toonRim = pow(diffuse, 0.1) * (1.0 - dot(viewVector, v_Normal));           \n"+ // rim
-                "       toonRim = 0.1*smoothstep(0.95, 0.97, toonRim);                                       \n"+
+                "       float toonRim = pow(diffuse, 0.1) * (1.0 - dot(viewVector, normalVector));       \n"+ // rim
+                "       toonRim = 0.1*smoothstep(0.92, 0.95, toonRim);                                       \n"+
 
                 //"       float attenuation = 1.0/(1.0+0.09*distance+0.032*distance*distance);           \n"+
                 "       Sum += toonDiffuse + toonSpecular + toonRim;                                          \n"+ // multiply attenuation if want to
@@ -275,4 +78,47 @@ public class Model {
         return fragmentShader;
     }
 
+    protected static String getBackFragmentShader()
+    {
+        final String backFragmentShader =
+                "#define LIGHTS 1               \n"+
+                "precision mediump float;       \n"+
+
+                "uniform vec3 u_LightPos0;      \n"+
+                "uniform vec3 u_LightPos1;      \n"+
+                "uniform vec3 u_ViewPos;        \n"+
+                "uniform sampler2D u_Texture;   \n"+
+
+                "varying vec3 v_Position;          \n"+
+                "varying vec3 v_Normal;          \n"+
+                "varying vec2 v_TextureMap;          \n"+
+
+                "void main()                    \n"+
+                "{                              \n"+
+                "   float Sum = 0.4;                                                     \n"+ // ambient
+                "   vec3 u_LightPos[LIGHTS];                                             \n"+
+                "   u_LightPos[0] = u_LightPos0;                                         \n"+
+                        //"   u_LightPos[1] = u_LightPos1;                                         \n"+
+
+                "   for(int i=0; i<LIGHTS; i++){                                                         \n"+
+                "       vec3 lightVector = normalize(u_LightPos[i] - v_Position);                        \n"+
+                "       vec3 reflectVector = reflect(-lightVector, v_Normal);                            \n"+
+                "       vec3 viewVector = normalize(u_ViewPos - v_Position);                             \n"+
+                "       vec3 halfVector = normalize(lightVector + viewVector);                           \n"+
+                "       vec3 normalVector = normalize(v_Normal);                                         \n"+
+                "       float distance = length(u_LightPos[i] - v_Position);                             \n"+
+
+                "       float diffuse = dot(normalVector, lightVector);                   \n"+ // diffuse
+
+                        //"       float specular = pow(max(dot(viewVector, reflectVector),0.0), 64.0);           \n"+ // specular
+                "       float specular = pow(max(dot(normalVector, halfVector),0.0), 64.0);              \n"+
+
+                "       Sum += diffuse + specular;                                          \n"+
+                "   }                                                                 \n"+
+                "   gl_FragColor = vec4(1.0, 0.6, 0.8, 1.0) * Sum * texture2D(u_Texture, v_TextureMap);    \n"+
+                "}                                                                       \n";
+        return backFragmentShader;
+    }
+
 }
+
